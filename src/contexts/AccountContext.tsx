@@ -32,19 +32,19 @@ export const AccountProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setLoading(true);
         setError(null);
         try {
-        const response = await fetch("/api/auth/me", { credentials: "same-origin" });
-        if (response.status === 401) {
+        const response = await fetch("/api/auth/session", { credentials: "same-origin" });
+        if (!response.ok) throw new Error("Failed to fetch account data");
+        const data = await response.json() as { user?: { id?: string; email?: string } | null };
+        if (!data.user) {
           setAccount({ logged_in: false, sso_id: "", sso_type: "", username: "", uuid: "", "2fa_enabled": false });
           return;
         }
-        if (!response.ok) throw new Error("Failed to fetch account data");
-        const data = await response.json() as { user?: { id?: string; email?: string } };
         setAccount({
           logged_in: true,
           sso_id: "",
           sso_type: "",
-          username: data.user?.email ?? "owner",
-          uuid: data.user?.id ?? "owner",
+          username: data.user.email ?? "owner",
+          uuid: data.user.id ?? "owner",
           "2fa_enabled": false,
         });
         } catch (err) {
