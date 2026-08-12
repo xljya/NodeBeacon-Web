@@ -147,7 +147,7 @@ const Index = () => {
     };
     const startPolling = () => {
       if (interval === undefined && !document.hidden) {
-        interval = window.setInterval(refresh, 5000);
+        interval = window.setInterval(refresh, 20_000);
       }
     };
     const handleVisibilityChange = () => {

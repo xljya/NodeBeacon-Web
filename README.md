@@ -1,75 +1,40 @@
-# Komari Web UI
+# NodeBeacon Web Shell
 
-参与翻译Komari？
-- 直接提PR
+NodeBeacon 的访客状态页前端。这个分支保留 Komari Web 的组件、布局、响应式和主题外壳，
+但运行时数据只来自 NodeBeacon Fastify BFF，不依赖 Komari Server、Agent、RPC2、WebSocket、
+Metric Store、插件或 WebSSH。
 
-We use AI to assist with translations. If you find any issues, please let us know!
+## 仓库关系
 
-How to contribute to Komari translations?
-- Directly PR
+- 产品与发布仓库：`xljya/NodeBeacon`
+- 基础设施源仓库：`xljya/NodeBeacon1`
+- 本仓库 `nodebeacon`：NodeBeacon 使用的前端产品分支
+- 本仓库 `radix`：保留的 Komari Web fork 上游分支
+- `upstream/radix`：`komari-monitor/komari-web` 的跟踪分支
 
-## 开发环境配置
+当前产品分支起点为上游提交 `d859bcdd6dafb712baa0958cbc4dfa208e1013d7`。
+上游仓库当前没有展示许可证；保留来源说明不代表替代许可证授权判断。
 
-> 我不是计科专业的，代码质量可能达不到平均水平，React是边学边写的，在此之前我从未接触过前端开发，请多包涵。
+## 数据边界
 
-### 前置 Nodejs
+- `/api/status`：节点列表与约 20 秒的公开状态快照
+- `/api/site-config`：站点名称与白名单主题 token
+- `/api/auth/*`：登录、二次验证和当前账户
+- `/api/public/nodes/:id/series`：服务端白名单 Prometheus 趋势查询
+- `/nodes/:id`、`/login`、`/admin`：由 NodeBeacon 产品仓库中的现有应用处理
 
-如果未安装，请访问 [Node.js 官网](https://nodejs.org/) 下载并安装。版本建议为 22 及以上。
+前端不得请求 `/api/rpc2`，不得直接请求 Prometheus，也不得显示 API 没有公开的 IP、
+labels、账单、私密备注或客户端版本。
 
-### 安装依赖
+## 本地开发
 
-```bash
-npm install
-```
+需要 Node.js 22（最低兼容 Node.js 20.19）。
 
-> 所有指令均在项目根目录下执行
-
-### 修改API地址
-
-1. 复制 `.env.example` 文件并重命名为 `.env.development`。
-
-2. 修改 `.env.development` 文件中的 `VITE_API_TARGET` 为你的开发环境地址。
-
-### 启动开发服务器
-
-```bash
+```text
+npm ci
 npm run dev
-```
-
-### 构建
-
-```bash
+npm run lint
 npm run build
 ```
 
-## 主题相关
-
-如果你需要基于本项目进行二次开发，可以参考以下步骤：
-
-1. 完成开发环境配置
-
-> 如果你是在 Linux 系统下开发，可以直接运行脚本 `build-theme.sh` 快速生成主题包。
-
-2. 修改 `komari-theme.json` 中的相关配置，具体可参考 [主题配置文件 | Komari](https://komari-document.pages.dev/dev/theme.html#%E4%B8%BB%E9%A2%98%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6)
-
-   `configuration` 会根据 `type` 复用 `data` 字段：
-
-   - `managed`: `data` 为配置项数组，后台会生成主题设置表单。
-   - `raw`: `data` 为 HTML 字符串，后台会在主内容区域渲染该 HTML。
-   - `redirect`: `data` 为站内相对路径，以实际部署的站点根目录（如 `VITE_BASE_URL`）为基准；例如根目录为 `/` 时 `settings` 或 `../settings` 会导航到 `/settings`，根目录为 `/abc/` 时会导航到 `/abc/settings`。
-
-3. 发挥你的想象和创造力，设计并实现你独特的主题风格！
-
-4. 构建主题
-
-   ```bash
-   npm run build
-   ```
-
-5. 生成的主题文件位于 `dist` 目录下，创建一个新的文件夹 `my-theme`（名称自定），将 `dist` 目录下复制到 `my-theme` 文件夹中。
-
-6. 将 `komari-theme.json` 文件复制到 `my-theme` 文件夹中。
-
-7. 将 `my-theme` 文件夹打包为 ZIP 文件。
-
-8. 在 Komari 的主题管理页面上传并应用你的自定义主题。
+开发代理通过 `.env.development` 中的 `VITE_API_TARGET` 指向 NodeBeacon API。

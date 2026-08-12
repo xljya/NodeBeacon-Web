@@ -6,10 +6,8 @@ import { IconButton } from "@radix-ui/themes";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { Link } from "react-router-dom";
 import { usePublicInfo } from "@/contexts/PublicInfoContext";
-import { useTranslation } from "react-i18next";
 const NavBar = () => {
   const { publicInfo } = usePublicInfo();
-  const { t } = useTranslation();
   return (
     <nav className="km-navbar nav-bar flex rounded-b-lg items-center gap-2 md:gap-3 max-h-16 justify-end min-w-full p-2 px-4">
       <div className="km-navbar-brand mr-auto flex items-center min-w-0">
@@ -28,7 +26,7 @@ const NavBar = () => {
             className="text-base font-bold whitespace-nowrap"
             style={{ color: "var(--accent-4)" }}
           >
-            Komari Monitor
+            Infrastructure Monitor
           </span>
         </div>
       </div>
@@ -37,7 +35,7 @@ const NavBar = () => {
         <IconButton
           variant="soft"
           onClick={() => {
-            window.open("https://github.com/komari-monitor", "_blank");
+            window.open("https://github.com/xljya/NodeBeacon", "_blank");
           }}
         >
           <GitHubLogoIcon />
@@ -46,19 +44,7 @@ const NavBar = () => {
         <ThemeSwitch />
         <ColorSwitch />
         <LanguageSwitch />
-        {publicInfo?.private_site && !document.cookie.includes("temp_key") ? (
-          <LoginDialog
-            autoOpen={
-              publicInfo?.private_site && !document.cookie.includes("temp_key")
-            }
-            info={t("common.private_site")}
-            onLoginSuccess={() => {
-              window.location.reload();
-            }}
-          />
-        ) : (
-          <LoginDialog />
-        )}
+        <LoginDialog />
       </div>
     </nav>
   );

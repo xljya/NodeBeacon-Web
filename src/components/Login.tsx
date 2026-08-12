@@ -55,16 +55,13 @@ const LoginDialog = ({ trigger, autoOpen = false, showSettings = true, info, onL
       setErrorMsg("");
       setIsLoading(true);
       try {
-        const res = await fetch("/api/login", {
+        const res = await fetch(require2FA ? "/api/auth/2fa" : "/api/auth/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            username,
-            password,
-            ...(twoFac && !account?.["2fa_enabled"] ? { "2fa_code": twoFac } : {}),
-          }),
+          credentials: "same-origin",
+          body: JSON.stringify(require2FA ? { code: twoFac } : { email: username, password }),
         });
         const data = await res.json();
         if (res.status === 200) {
@@ -73,13 +70,11 @@ const LoginDialog = ({ trigger, autoOpen = false, showSettings = true, info, onL
             onLoginSuccess();
             return
           }
-          window.open("/admin/dashboard", "_self");
+          window.open("/admin", "_self");
+        } else if (res.status === 202 && data.status === "second_factor_required") {
+          setRequire2FA(true);
         } else {
-          if (data.message === "2FA code is required") {
-            setRequire2FA(true);
-            return;
-          }
-          setErrorMsg(data.message || "Login failed");
+          setErrorMsg(data?.error?.message || data.message || "Login failed");
         }
       } catch (err) {
         setErrorMsg("Network error");
@@ -104,7 +99,7 @@ const LoginDialog = ({ trigger, autoOpen = false, showSettings = true, info, onL
         return null;
       }
       return (
-        <a href="/admin/dashboard" target="_blank">
+        <a href="/admin">
           <IconButton
             title={t("settings.title", "Settings")}
             aria-label={t("settings.title", "Settings")}
@@ -118,7 +113,7 @@ const LoginDialog = ({ trigger, autoOpen = false, showSettings = true, info, onL
     // 仅 OAuth 登录 且 不自动打开时：点击触发器直接跳转，不展示对话框
     if (onlyOAuthLogin && !autoOpen) {
       const redirect = () => {
-        window.location.href = "/api/oauth";
+        window.location.href = "/api/auth/github";
       };
       if (trigger) {
         // 如果提供了自定义触发器，包装一层点击
@@ -175,7 +170,7 @@ const LoginDialog = ({ trigger, autoOpen = false, showSettings = true, info, onL
                 <>
                   <label>
                     <Text as="div" size="2" mb="1" weight="bold">
-                      {t("login.username")}
+                    {t("login.username")}
                     </Text>
                     <TextField.Root
                       className="km-login-input"
@@ -184,7 +179,8 @@ const LoginDialog = ({ trigger, autoOpen = false, showSettings = true, info, onL
                       id={`login-username-${fieldId}`}
                       name="username"
                       autoComplete="username"
-                      placeholder="admin"
+                      type="email"
+                      placeholder="owner@example.com"
                       disabled={isLoading}
                       autoFocus
                     />
@@ -240,7 +236,7 @@ const LoginDialog = ({ trigger, autoOpen = false, showSettings = true, info, onL
               {publicInfo?.oauth_enable && (
                 <Button
                   onClick={() => {
-                    window.location.href = "/api/oauth";
+                    window.location.href = "/api/auth/github";
                   }}
                   variant={passwordLoginEnabled ? "soft" : "solid"}
                   disabled={isLoading}
