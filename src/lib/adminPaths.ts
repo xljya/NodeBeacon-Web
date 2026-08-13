@@ -65,3 +65,11 @@ export function buildGithubLoginUrl(next: unknown, pathname?: string): string {
   const target = sanitizeNextPath(next, undefined, pathname);
   return `/api/auth/github?next=${encodeURIComponent(target)}`;
 }
+
+export function getOfficialAdminPath(pathname: string, search = ""): string {
+  if (pathname === "/login-v2") return `/login${search}`;
+  if (pathname === "/admin-v2" || pathname.startsWith("/admin-v2/")) {
+    return `/admin${pathname.slice("/admin-v2".length)}${search}`;
+  }
+  return `${pathname}${search}`;
+}
