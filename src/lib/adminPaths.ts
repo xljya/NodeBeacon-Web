@@ -60,3 +60,8 @@ export function readNextParam(search: string, pathname?: string): string {
   const query = search.startsWith("?") ? search.slice(1) : search;
   return sanitizeNextPath(new URLSearchParams(query).get("next"), undefined, pathname);
 }
+
+export function buildGithubLoginUrl(next: unknown, pathname?: string): string {
+  const target = sanitizeNextPath(next, undefined, pathname);
+  return `/api/auth/github?next=${encodeURIComponent(target)}`;
+}
