@@ -241,9 +241,6 @@ export default function LoginPage() {
             </Flex>
           </form>
         )}
-        <Text size="1" color="gray" mt="4">
-          {t("nb.login.shadowHint", "This is the NodeBeacon Admin shell. Owner sessions use the existing Fastify cookie.")}
-        </Text>
       </Card>
     </Flex>
   );
