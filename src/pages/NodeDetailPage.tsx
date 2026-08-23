@@ -71,7 +71,10 @@ export default function NodeDetailPage() {
         fetchStatus(true),
         fetchJson<NodeBeaconDetailResponse>(`/api/public/nodes/${encodeURIComponent(decodedId)}/detail`, { signal: request.signal }),
         seriesPath
-          ? fetchJson<NodeBeaconDetailSeriesResponse>(seriesPath, { signal: request.signal })
+          ? fetchJson<NodeBeaconDetailSeriesResponse>(seriesPath, { signal: request.signal }).catch((seriesError) => {
+              if (request.signal.aborted) throw seriesError;
+              return { nodeId: decodedId, series: [] as NodeBeaconDetailSeriesResponse["series"] };
+            })
           : Promise.resolve({ nodeId: decodedId, series: [] as NodeBeaconDetailSeriesResponse["series"] }),
       ])
         .then(([status, nextDetail, nextSeries]) => {
@@ -114,7 +117,7 @@ export default function NodeDetailPage() {
     : 0;
 
   if (loading && !detail) {
-    return <div className="flex min-h-64 items-center justify-center"><Loading /></div>;
+    return <div className="flex min-h-64 items-center justify-center" data-testid="node-detail-loading"><Loading /></div>;
   }
   if (!detail) {
     return (
@@ -184,12 +187,12 @@ export default function NodeDetailPage() {
             </Grid>
           </Card>
           <Grid columns={{ initial: "1", lg: "2" }} gap="3">
-            <NodeDetailSeriesChart title={t("nodeCard.resourceUsage") + " CPU"} series={series.filter((item) => item.metric === "cpu")} />
-            <NodeDetailSeriesChart title={t("nodeCard.ram")} series={series.filter((item) => item.metric === "memory")} />
-            <NodeDetailSeriesChart title={t("nodeCard.disk")} series={series.filter((item) => item.metric === "disk")} />
-            <NodeDetailSeriesChart title={t("nodeCard.networkSpeed")} series={series.filter((item) => item.metric === "network")} />
-            <NodeDetailSeriesChart title={t("chart.connections")} series={series.filter((item) => item.metric === "connections")} />
-            <NodeDetailSeriesChart title={t("nodeCard.ping")} series={series.filter((item) => item.metric === "latency")} height={240} />
+            <NodeDetailSeriesChart metric="cpu" title={t("nodeCard.resourceUsage") + " CPU"} series={series.filter((item) => item.metric === "cpu")} />
+            <NodeDetailSeriesChart metric="memory" title={t("nodeCard.ram")} series={series.filter((item) => item.metric === "memory")} />
+            <NodeDetailSeriesChart metric="disk" title={t("nodeCard.disk")} series={series.filter((item) => item.metric === "disk")} />
+            <NodeDetailSeriesChart metric="network" title={t("nodeCard.networkSpeed")} series={series.filter((item) => item.metric === "network")} />
+            <NodeDetailSeriesChart metric="connections" title={t("chart.connections")} series={series.filter((item) => item.metric === "connections")} />
+            <NodeDetailSeriesChart metric="latency" title={t("nodeCard.ping")} series={series.filter((item) => item.metric === "latency")} height={240} />
             <NodeDetailLatencyStats nodeId={decodedId} series={series.filter((item) => item.metric === "latency")} />
           </Grid>
         </Flex>

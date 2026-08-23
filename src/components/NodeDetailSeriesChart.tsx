@@ -8,6 +8,7 @@ import type { NodeBeaconDetailSeries } from "@/lib/nodebeacon";
 const COLORS = ["#5b5bd6", "#0d9488", "#ea580c", "#db2777", "#2563eb"];
 
 type NodeDetailSeriesChartProps = {
+  metric?: string;
   title: string;
   series: NodeBeaconDetailSeries[];
   height?: number;
@@ -21,7 +22,7 @@ function formatValue(unit: NodeBeaconDetailSeries["unit"], value: number): strin
   return value.toFixed(2);
 }
 
-export default function NodeDetailSeriesChart({ title, series, height = 220 }: NodeDetailSeriesChartProps) {
+export default function NodeDetailSeriesChart({ metric, title, series, height = 220 }: NodeDetailSeriesChartProps) {
   const { t } = useTranslation();
   const unit = series[0]?.unit ?? "percent";
   const chartData = useMemo(() => {
@@ -37,7 +38,7 @@ export default function NodeDetailSeriesChart({ title, series, height = 220 }: N
   }, [series]);
 
   return (
-    <Card className="flex min-h-0 flex-col gap-2 overflow-hidden p-3" style={{ height }}>
+    <Card className="flex min-h-0 flex-col gap-2 overflow-hidden p-3" style={{ height }} data-chart={metric}>
       <Text size="2" weight="medium">{title}</Text>
       {chartData.length === 0 ? (
         <div className="flex min-h-0 flex-1 items-center justify-center text-muted-foreground">

@@ -19,8 +19,8 @@
 首页轮询间隔固定为 20 秒。节点名称链到 `getNodeDetailPath(id)`（`/nodes/:id`）。
 本仓已提供同一 React 19 壳内的节点详情页，数据只来自 `/api/status`、
 `/api/public/nodes/:id/detail` 和白名单
-`/api/public/nodes/:id/series`。生产是否由该页提供 HTML，仍由产品仓库 Fastify
-路由决定；在 Fastify 把 `/nodes/*` 从 React 18 壳切走之前，线上仍走旧详情壳。
-延迟序列使用 `/api/public/nodes/:id/series?metrics=latency`，统计弹层使用
+`/api/public/nodes/:id/series`。产品仓库从 v1.1.9 起由 Fastify 把 `/nodes/:id`
+交给本页；本仓单独提交仍不部署生产。序列接口失败时详情页仍渲染，图表为空。
+延迟序列使用 `/api/public/nodes/:id/series?metrics=latency`，统计使用
 `/api/public/nodes/:id/latency-stats?vantage=`，只传白名单 vantage，不传 PromQL
 或 labels。实时范围每 5 秒刷新详情和序列，其它范围每 20 秒刷新。

@@ -64,7 +64,8 @@ export default function NodeDetailLatencyStats({ nodeId, series }: NodeDetailLat
               variant={item === selected ? "solid" : "soft"}
               onClick={() => setVantage(item)}
             >
-              {series.find((candidate) => (candidate.labels?.vantage ?? candidate.key) === item)?.labels?.vantage
+              {series.find((candidate) => (candidate.labels?.vantage ?? candidate.key) === item)?.labels?.vantage_name
+                ?? series.find((candidate) => (candidate.labels?.vantage ?? candidate.key) === item)?.labels?.vantage
                 ?? item}
             </Button>
           ))}
